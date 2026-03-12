@@ -1,0 +1,111 @@
+===============================================================================
+        PROYECTO: DASHBOARD DE MONITOREO RANSHARING WOM - PROVEEDOR ENTEL
+===============================================================================
+
+1. OBJETIVO DEL PROYECTO
+-------------------------------------------------------------------------------
+El Dashboard de Monitoreo RANSharing proporciona una vista integral y en tiempo 
+real del rendimiento de la red compartida (RAN Sharing) entre WOM y Entel. Su 
+objetivo principal es auditar el estado de los sitios, detectar degradaciones de 
+servicio y garantizar el cumplimiento de los Niveles de Servicio (SLA) mediante 
+el análisis horario de los principales KPIs de red móvil (LTE).
+
+
+2. ARQUITECTURA TECNOLÓGICA
+-------------------------------------------------------------------------------
+* Frontend (Interfaz): Desarrollado en Python utilizando Streamlit, ofreciendo 
+  una interfaz web interactiva, rápida y diseñada con la identidad visual 
+  institucional (tonos púrpura y magenta).
+* Base de Datos Analítica (KPIs): Conectado a PostgreSQL, donde se almacenan 
+  y consultan millones de registros de telemetría por hora.
+* Catálogo de Sitios (Maestra): Conectado directamente a ClickHouse, actuando 
+  como la única fuente de la verdad para el inventario de sitios y celdas activos.
+
+
+3. ESTRUCTURA DE LA PLATAFORMA Y COMPONENTES
+-------------------------------------------------------------------------------
+La plataforma se divide en cuatro grandes zonas interactivas:
+
+A. Panel Lateral (Filtros Globales y Módulos)
+   - Permite al usuario filtrar la visualización de la red por Sitios Específicos 
+     o Celdas puntuales (con selectores dinámicos en cascada).
+   - Selector de Módulos KPI: Permite cambiar instantáneamente el enfoque del 
+     análisis a diferentes áreas de rendimiento de red (Ej: Accesibilidad, 
+     Velocidad, VoLTE, etc.).
+
+B. Panel de Control de Tiempo
+   - Herramienta rápida para seleccionar la ventana de observación: 
+     Últimas 24 Horas, 30 Días o 60 Días, recalculando todos los gráficos 
+     y diagnósticos al instante.
+
+C. Tarjetas de Auditoría y Estado en Tiempo Real (Top Cards)
+   - Q SITIOS RS: Total de sitios administrados bajo el contrato RANSharing 
+     según el inventario maestro de ClickHouse.
+   - Q SITIOS SIN KPI: Identifica cuántos sitios del inventario no están 
+     reportando datos de tráfico a la base de PostgreSQL (Sitios caídos o mudos).
+   - Q SITIOS CON FALLAS: Cruza los datos de todos los sitios en las últimas 
+     12 horas y levanta alertas rojas automáticas si la disponibilidad cae 
+     bajo el 50% o la accesibilidad baja del 80%.
+   - Q SITIOS INTERMITENTES: Identifica una nueva capa de fallas repetitivas. 
+     Aísla celdas que tal vez cumplan con la métrica promedio diaria, pero 
+     que experimentan picos de micro-cortes (>20 segundos por hora).
+
+D. Visualización Geográfica (Mapa)
+   - Mapa interactivo que posiciona todos los sitios de la red según sus 
+     coordenadas GPS. Colorea los sitios en verde (OK), rojo (Sin Datos) o 
+     amarillo/naranja (En Falla), ofreciendo un diagnóstico visual inmediato 
+     (Tooltip) al pasar el cursor sobre ellos.
+
+
+4. MÓDULOS DE ANÁLISIS (KPIs) Y SUS CÁLCULOS
+-------------------------------------------------------------------------------
+El sistema extrae la telemetría "cruda" (Raw Counters) desde los equipos de 
+red y calcula los indicadores comerciales utilizando fórmulas matemáticas estándar 
+de la industria de telecomunicaciones:
+
+* ACCESIBILIDAD (Éxito de Conexión)
+  - E-RAB Setup SR (%): Mide la tasa de éxito al establecer portadoras de radio.
+    Fórmula: (E-RAB Succ / E-RAB Att) * 100
+  - RRC Setup SR (%) / S1 Conn Setup SR (%): Tasa de éxito en la señalización.
+
+* DOWNTIME (Disponibilidad y Caídas)
+  - Muestra el tiempo en segundos que las celdas estuvieron apagadas, ya sea por 
+    fallos automáticos o mantenimientos manuales.
+  - Disponibilidad (%): Calcula qué porcentaje del tiempo total (3600 seg x hora) 
+    las celdas estuvieron operativas.
+    Fórmula: 100 - [(DowntimeAuto + DowntimeManual) / TiempoTotalEsperado * 100]
+
+* TRÁFICO Y VELOCIDAD
+  - Tráfico (GB): Volumen total de datos descargados y subidos por los usuarios.
+    Fórmula: (Bytes DL/UL * 125) / 1073741824 (Conversión a Gigabytes).
+  - Throughput de Usuario y Celda (Mbps): Velocidad promedio experimentada por 
+    los usuarios.
+    Fórmula: Volumen transmitido / Tiempo activo de transmisión.
+
+* DROP (Retención)
+  - Mide la tasa de caídas anormales de llamadas o sesiones de datos activas.
+
+* VoLTE (Voz sobre LTE)
+  - Mide el tráfico exclusivo de llamadas de voz de alta calidad cursadas por 
+    la red 4G, en unidades de Erlangs y Minutos.
+
+* PRB (Utilización de Recursos Físicos)
+  - Indica la congestión de la celda, midiendo el porcentaje de bloques de 
+    recursos (espectro) que se están utilizando tanto de bajada como de subida.
+    Fórmula: (PRB Usados / PRB Disponibles) * 100
+
+
+5. ROBUSTEZ Y OPTIMIZACIÓN
+-------------------------------------------------------------------------------
+* Cálculos Seguros (Anti-NULLs): Las divisiones de datos están protegidas contra 
+  divisiones por cero y variables vacías, evitando interrupciones en el sistema.
+* Optimización de Consultas SQL: El uso de índices y límites (ORDER BY LIMIT 1) 
+  garantiza que, a pesar de consultar tablas con millones de registros, la app 
+  siga siendo veloz y responsiva.
+* Diagnóstico de Conectividad: La app auto-evalúa sus puentes de conexión hacia 
+  PostgreSQL y ClickHouse, informando en pantalla de inmediato cualquier corte 
+  de red con los servidores principales.
+
+===============================================================================
+DOCUMENTO GENERADO AUTOMÁTICAMENTE PARA PRESENTACIÓN EJECUTIVA
+===============================================================================

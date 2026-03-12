@@ -1,0 +1,261 @@
+###############################
+-------------------------------ACCESIBILIDAD
+
+SELECT 
+  "Timestamp_ID",
+
+  -- KPI: E-RAB Setup SR
+  CASE WHEN SUM("pmErabEstabAttInit") > 0 
+       THEN 100.0 * SUM("pmErabEstabSuccInit") / SUM("pmErabEstabAttInit")
+  END AS "E_RAB_Setup_SR",
+
+  -- KPI: E-RAB Setup SR QCI5
+  CASE WHEN SUM("pmErabEstabAttInitQciIdx5") > 0 
+       THEN 100.0 * SUM("pmErabEstabSuccInitQciIdx5") / SUM("pmErabEstabAttInitQciIdx5")
+  END AS "E_RAB_Setup_SR_QCI5",
+
+  -- KPI: RRC Setup SR
+  CASE WHEN SUM("pmRrcConnEstabAtt") > 0 
+       THEN 100.0 * SUM("pmRrcConnEstabSucc") / SUM("pmRrcConnEstabAtt")
+  END AS "RRC_Setup_SR",
+
+  -- KPI: S1 Sig Conn Setup SR
+  CASE WHEN SUM("pmS1SigConnEstabAtt") > 0 
+       THEN 100.0 * SUM("pmS1SigConnEstabSucc") / SUM("pmS1SigConnEstabAtt")
+  END AS "S1_Sig_Conn_Setup_SR"
+
+FROM ransharing.counters_hourly_entel
+
+WHERE 
+  "Timestamp_ID" >= now() - interval '60 day'
+  AND (
+      '${CELLNAME_RS_E:raw}' = 'All'
+      OR "Cell_Name" IN (${CELLNAME_RS_E:sqlstring})
+  )
+
+GROUP BY "Timestamp_ID"
+ORDER BY "Timestamp_ID";
+
+###############################
+-------------------------------Drop
+SELECT 
+  "Timestamp_ID",
+
+  CASE 
+      WHEN SUM("pmErabEstabSuccInit" ) > 0 THEN 
+          100.0 * 
+          SUM("pmErabRelAbnormalEnbAct" + "pmErabRelAbnormalMmeAct")
+          / 
+          SUM("pmErabEstabSuccInit" + "pmErabEstabSuccAdded")
+      ELSE NULL
+  END AS "Ret_ERabDrop"
+
+FROM ransharing.counters_hourly_entel
+
+WHERE 
+  "Timestamp_ID" >= now() - interval '60 day'
+  AND (
+        '${CELLNAME_RS_E:raw}' = 'All' 
+        OR "Cell_Name" IN (${CELLNAME_RS_E:sqlstring})
+      )
+
+GROUP BY "Timestamp_ID"
+ORDER BY "Timestamp_ID";
+
+###############################
+-------------------------------User
+SELECT 
+  "Timestamp_ID",
+
+  -- Avg Active UE DL
+  CASE 
+      WHEN SUM("pmSchedActivityCellDl") > 0 THEN 
+           SUM("pmActiveUeDlSum") / SUM("pmSchedActivityCellDl")
+  END AS "Avg_Active_UE_DL",
+
+  -- Avg Active UE UL
+  CASE 
+      WHEN SUM("pmSchedActivityCellUl") > 0 THEN 
+           SUM("pmActiveUeUlSum") / SUM("pmSchedActivityCellUl")
+  END AS "Avg_Active_UE_UL",
+
+  -- Avg RRC Users
+  CASE 
+      WHEN SUM("pmRrcConnLevSamp") > 0 THEN 
+           SUM("pmRrcConnLevSum") / SUM("pmRrcConnLevSamp")
+  END AS "Avg_RRC_Users"
+
+FROM ransharing.counters_hourly_entel 
+
+WHERE 
+  "Timestamp_ID" >= now() - interval '60 day'
+  AND (
+        '${CELLNAME_RS_E:raw}' = 'All'
+        OR "Cell_Name" IN (${CELLNAME_RS_E:sqlstring})
+      )
+
+GROUP BY "Timestamp_ID"
+ORDER BY "Timestamp_ID";
+
+
+###############################
+------------------------------- PRB
+SELECT 
+  "Timestamp_ID",
+
+  -- PRB DL Usage
+  CASE 
+    WHEN SUM("pmPrbAvailDl") > 0 THEN 
+      100.0 * (
+        SUM("pmPrbUsedDlBcch") +
+        SUM("pmPrbUsedDlDtch") +
+        SUM("pmPrbUsedDlPcch") +
+        SUM("pmPrbUsedDlSrbFirstTrans")
+      ) / SUM("pmPrbAvailDl")
+    ELSE NULL
+  END AS "PRB_DL_Usage",
+
+  -- PRB UL Usage
+  CASE 
+    WHEN SUM("pmPrbAvailUl") > 0 THEN 
+      100.0 * (
+        SUM("pmPrbUsedUlDtch") +
+        SUM("pmPrbUsedUlSrb")
+      ) / SUM("pmPrbAvailUl")
+    ELSE NULL
+  END AS "PRB_UL_Usage"
+
+FROM ransharing.counters_hourly_entel
+
+WHERE 
+  "Timestamp_ID" >= now() - interval '60 day'
+  AND (
+    '${CELLNAME_RS_E:raw}' = 'All'
+    OR "Cell_Name" IN (${CELLNAME_RS_E:sqlstring})
+  )
+
+GROUP BY "Timestamp_ID"
+ORDER BY "Timestamp_ID";
+
+
+###############################
+------------------------------- Tput
+SELECT 
+  "Timestamp_ID",
+
+  -- Avg DL User Throughput
+  CASE 
+    WHEN SUM("pmUeThpTimeDl") > 0 THEN 
+      (SUM("pmPdcpVolDlDrb") - SUM("pmPdcpVolDlDrbLastTTI")) 
+      / (SUM("pmUeThpTimeDl") / 1000)
+    ELSE NULL
+  END AS "Avg_DL_User_Tput",
+
+  -- Avg DL Cell Throughput
+  CASE 
+    WHEN SUM("pmSchedActivityCellDl") > 0 THEN 
+      SUM("pmPdcpVolDlDrb") 
+      / (SUM("pmSchedActivityCellDl") / 1000)
+    ELSE NULL
+  END AS "Avg_DL_Cell_Tput",
+
+  -- Avg UL User Throughput
+  CASE 
+    WHEN SUM("pmUeThpTimeUl") > 0 THEN 
+      SUM("pmUeThpVolUl") 
+      / (SUM("pmUeThpTimeUl") / 1000)
+    ELSE NULL
+  END AS "Avg_UL_User_Tput",
+
+  -- Avg UL Cell Throughput
+  CASE 
+    WHEN SUM("pmSchedActivityCellUl") > 0 THEN 
+      SUM("pmPdcpVolUlDrb") 
+      / (SUM("pmSchedActivityCellUl") / 1000)
+    ELSE NULL
+  END AS "Avg_UL_Cell_Tput"
+
+FROM ransharing.counters_hourly_entel 
+
+WHERE 
+  "Timestamp_ID" >= now() - interval '60 day'
+  AND (
+    '${CELLNAME_RS_E:raw}' = 'All'
+    OR "Cell_Name" IN (${CELLNAME_RS_E:sqlstring})
+  )
+
+GROUP BY "Timestamp_ID"
+ORDER BY "Timestamp_ID";
+
+
+###############################
+------------------------------- Trafico
+SELECT 
+  "Timestamp_ID",
+
+  -- DL TRAFFIC VOLUME (GB)
+  CASE 
+    WHEN SUM("pmPdcpVolDlDrb") > 0 THEN 
+       (SUM("pmPdcpVolDlDrb") + SUM("pmPdcpVolDlSrb")) 
+       * 125 / 1073741824
+    ELSE NULL
+  END AS "DL_TRAFFIC_VOLUME",
+
+  -- UL TRAFFIC VOLUME (GB)
+  CASE 
+    WHEN SUM("pmPdcpVolUlDrb") > 0 THEN 
+       (SUM("pmPdcpVolUlDrb") + SUM("pmPdcpVolUlSrb")) 
+       * 125 / 1073741824
+    ELSE NULL
+  END AS "UL_TRAFFIC_VOLUME"
+
+FROM ransharing.counters_hourly_entel
+
+WHERE 
+  "Timestamp_ID" >= now() - interval '60 day'
+  AND (
+    '${CELLNAME_RS_E:raw}' = 'All' 
+    OR "Cell_Name" IN (${CELLNAME_RS_E:sqlstring})
+  )
+
+GROUP BY "Timestamp_ID"
+ORDER BY "Timestamp_ID";
+
+
+
+
+###############################
+------------------------------- Donwtime
+SELECT 
+  "Timestamp_ID", 
+
+  SUM("pmCellDowntimeAuto")   AS "Downtime_Auto",
+  SUM("pmCellDowntimeMan")    AS "Downtime_Manual",
+  SUM("pmCellSleepTime")      AS "SleepTime"
+
+FROM ransharing.counters_hourly_entel
+
+WHERE "Timestamp_ID" >= now() - interval '60 day'
+  AND (
+    '${CELLNAME_RS_E:raw}' = 'All' 
+    OR "Cell_Name" IN (${CELLNAME_RS_E:sqlstring})
+  )
+
+GROUP BY "Timestamp_ID"
+ORDER BY "Timestamp_ID";
+
+
+###############################
+------------------------------- Volte
+SELECT
+  "Timestamp_ID",
+  CASE WHEN SUM("pmErabQciLevSumIdx1") > 0 THEN SUM("pmErabQciLevSumIdx1")/3600 END AS "Volte_Erlang",
+  CASE WHEN SUM("pmErabQciLevSumIdx1") > 0 THEN SUM("pmErabQciLevSumIdx1")/60   END AS "Volte_min"
+FROM ransharing.counters_hourly_entel
+WHERE "Timestamp_ID" >= now() - interval '60 day'
+  AND (
+    '${CELLNAME_RS_E:raw}' = 'All' 
+    OR "Cell_Name" IN (${CELLNAME_RS_E:sqlstring})
+  )
+GROUP BY "Timestamp_ID"
+ORDER BY "Timestamp_ID";

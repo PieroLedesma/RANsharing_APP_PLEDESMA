@@ -135,8 +135,8 @@ def render_connection_status(db_ok: bool, ch_ok: bool):
     """Indicadores de estado de conexión en el sidebar."""
     db_icon  = "🟢" if db_ok    else "🔴"
     ch_icon  = "🟢" if ch_ok    else "🔴"
-    db_text  = "PostgreSQL: OK" if db_ok    else "PostgreSQL: ERROR"
-    ch_text  = "ClickHouse: OK" if ch_ok    else "ClickHouse: ERROR"
+    db_text  = "PostgreSQL (3T): OK" if db_ok    else "PostgreSQL (3T): ERROR"
+    ch_text  = "MySQL (Yumbel): OK" if ch_ok    else "MySQL (Yumbel): ERROR"
 
     st.markdown(f"""
     <div style="background:rgba(255,255,255,0.07); border-radius:8px;

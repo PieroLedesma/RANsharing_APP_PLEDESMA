@@ -6,6 +6,9 @@ textColor = "#1A1A2E"
 font = "sans serif"
 
 [server]
+port = 8502
+headless = true
+baseUrlPath = "MonitoreoRANsharing_Entel"
 maxUploadSize = 50
 enableCORS = false
 enableXsrfProtection = true

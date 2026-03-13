@@ -212,7 +212,7 @@ div[data-testid="stHorizontalBlock"] .stButton > button {
 # HELPERS
 # =============================================================================
 
-# Clickhouse se carga via utils/clickhouse.py (ver load_master_table)
+# mysql_db se carga via utils/clickhouse.py (ver load_master_table)
 
 
 @st.cache_data(ttl=600)
@@ -411,7 +411,7 @@ st.markdown("""
                 Monitoreo RANSharing WOM con proveedor Entel
             </h1>
             <p style="margin:4px 0 0 0; font-size:12px; opacity:0.75;">
-                Supervisión de KPIs LTE · Tabla Maestra RANSHARING_CELLS · PostgreSQL transload
+                Supervisión de KPIs LTE · Tabla Maestra RANSHARING_CELLS · PostgreSQL (3T) transload
             </p>
         </div>
     </div>
@@ -464,7 +464,7 @@ elif active_sites and not df_maestra.empty:
 
 
 with st.status("⏳ Consultando base de datos...", expanded=False) as status_bar:
-    st.write("📡 Conectando a PostgreSQL...")
+    st.write("📡 Conectando a PostgreSQL (3T)...")
     time.sleep(0.1)
 
     # Query de auditoría (evaluación obligatoria sobre las últimas 12h para no arrastrar fallas antiguas y alertar más rápido)
@@ -561,8 +561,8 @@ with aud_col4:
 with aud_col5:
     # Timestamp de actualización
     now_str = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    db_badge   = '<span style="background:#E8F5E9;color:#2E7D32;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;">● BD OK</span>' if db_ok else '<span style="background:#FFEBEE;color:#C62828;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;">● BD ERROR</span>'
-    gs_badge   = '<span style="background:#E8F5E9;color:#2E7D32;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;">● ClickHouse OK</span>' if ch_ok else '<span style="background:#FFF8E1;color:#F57F17;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;">● ClickHouse ERROR</span>'
+    db_badge   = '<span style="background:#E8F5E9;color:#2E7D32;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;">● PostgreSQL (3T) OK</span>' if db_ok else '<span style="background:#FFEBEE;color:#C62828;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;">● PostgreSQL (3T) ERROR</span>'
+    gs_badge   = '<span style="background:#E8F5E9;color:#2E7D32;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;">● MySQL (Yumbel) OK</span>' if ch_ok else '<span style="background:#FFF8E1;color:#F57F17;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;">● MySQL (Yumbel) ERROR</span>'
     st.markdown(f"""
     <div style="background:white; border-radius:10px; padding:8px 14px;
                 box-shadow:0 2px 10px rgba(123,45,139,0.08);
@@ -629,7 +629,7 @@ box-shadow:0 2px 10px rgba(123,45,139,0.2);">
                 height=200,
             )
     else:
-        st.info("ℹ️ No hay datos para el período y filtros seleccionados. Verifica la conexión a PostgreSQL.")
+        st.info("ℹ️ No hay datos para el período y filtros seleccionados. Verifica la conexión a PostgreSQL (3T).")
 
     # ── Sección de Auditoría de Faltantes ────────────────────────────────
     st.markdown("<div style='margin-top:16px;'></div>", unsafe_allow_html=True)
@@ -675,7 +675,7 @@ with map_col:
 
     # ── Tabla maestra resumida ────────────────────────────────────────────
     if not df_maestra.empty:
-        with st.expander("📋 Tabla Maestra (ClickHouse)", expanded=False):
+        with st.expander("📋 Tabla Maestra (mysql_db)", expanded=False):
             cols_to_show = [c for c in df_maestra.columns if c.upper() in
                             ('SITE', 'SITIO', 'CELLNAME', 'CELL_NAME', 'OPERATOR', 'OPERADOR',
                              'LAT', 'LON', 'LATITUDE', 'LONGITUDE', 'LATITUD', 'LONGITUD')]

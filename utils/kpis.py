@@ -79,10 +79,16 @@ def calculate_audit_kpis(
             reasons = []
             interm_reasons = []
             
-            if acc_col and pd.notnull(row[acc_col]) and row[acc_col] < KPI_THRESHOLDS['accesibilidad_min']:
-                reasons.append(f"Acc:{row[acc_col]}%")
-            if disp_col and pd.notnull(row[disp_col]) and row[disp_col] < KPI_THRESHOLDS['disponibilidad_min']:
-                reasons.append(f"Disp:{row[disp_col]}%")
+            if acc_col:
+                acc_val = row[acc_col] if pd.notnull(row[acc_col]) else 0.0
+                if acc_val < KPI_THRESHOLDS['accesibilidad_min']:
+                    val_str = f"{row[acc_col]}%" if pd.notnull(row[acc_col]) else "S/D"
+                    reasons.append(f"Acc:{val_str}")
+            if disp_col:
+                disp_val = row[disp_col] if pd.notnull(row[disp_col]) else 0.0
+                if disp_val < KPI_THRESHOLDS['disponibilidad_min']:
+                    val_str = f"{row[disp_col]}%" if pd.notnull(row[disp_col]) else "S/D"
+                    reasons.append(f"Disp:{val_str}")
                 
             if dt_max_col and pd.notnull(row[dt_max_col]) and row[dt_max_col] > KPI_THRESHOLDS.get('intermitencia_downtime_sec', 20.0):
                 interm_reasons.append(f"DTMax:{row[dt_max_col]}s/h")

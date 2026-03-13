@@ -16,10 +16,10 @@ CLICKHOUSE_CONFIG = {
 @st.cache_data(ttl=3600, show_spinner=False)
 def load_master_table() -> pd.DataFrame:
     """
-    Carga la tabla maestra desde ClickHouse.
+    Carga la tabla maestra desde mysql_db.
     """
     try:
-        # Convertimos a int para clickhouse_connect, aunque se configure como string
+        # Convertimos a int para la conexión (mysql_db), aunque se configure como string
         client = clickhouse_connect.get_client(
             host=CLICKHOUSE_CONFIG['host'],
             port=int(CLICKHOUSE_CONFIG['port']),
@@ -41,10 +41,10 @@ def load_master_table() -> pd.DataFrame:
         # Limpieza básica de filas vacías (opcional según la db, pero seguro)
         df = df.dropna(how='all')
         
-        logger.info(f"✅ Tabla maestra cargada desde ClickHouse: {len(df)} filas")
+        logger.info(f"✅ Tabla maestra cargada desde mysql_db: {len(df)} filas")
         return df
 
     except Exception as e:
-        logger.error(f"Error cargando datos de ClickHouse: {e}")
-        st.error(f"⚠️ **Error al cargar la tabla maestra (ClickHouse):**\n\n`{e}`")
+        logger.error(f"Error cargando datos de mysql_db: {e}")
+        st.error(f"⚠️ **Error al cargar la tabla maestra (mysql_db):**\n\n`{e}`")
         return pd.DataFrame()

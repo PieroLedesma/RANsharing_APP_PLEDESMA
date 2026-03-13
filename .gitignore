@@ -25,3 +25,4 @@ secret_gspreadsheet.json
 login_logs.csv
 *.sqlite3
 *.db
+nohup.out

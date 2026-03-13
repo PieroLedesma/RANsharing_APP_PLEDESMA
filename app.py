@@ -678,6 +678,8 @@ with map_col:
         with st.expander("📋 Tabla Maestra (mysql_db)", expanded=False):
             cols_to_show = [c for c in df_maestra.columns if c.upper() in
                             ('SITE', 'SITIO', 'CELLNAME', 'CELL_NAME', 'OPERATOR', 'OPERADOR',
+                             'ENODEBID', 'ENODEB_ID', 'ENODEB ID', 'ENODEB',
+                             'CODIGO_SERVICIO', 'COD_SERVICIO', 'CÓD. SERVICIO', 'CODIGO SERVICIO',
                              'LAT', 'LON', 'LATITUDE', 'LONGITUDE', 'LATITUD', 'LONGITUD')]
             df_show = df_maestra[cols_to_show].copy() if cols_to_show else df_maestra.copy()
             st.dataframe(df_show, use_container_width=True, height=220)

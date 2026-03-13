@@ -682,4 +682,13 @@ with map_col:
                              'CODIGO_SERVICIO', 'COD_SERVICIO', 'CÓD. SERVICIO', 'CODIGO SERVICIO',
                              'LAT', 'LON', 'LATITUDE', 'LONGITUDE', 'LATITUD', 'LONGITUD')]
             df_show = df_maestra[cols_to_show].copy() if cols_to_show else df_maestra.copy()
+            # Convertir columnas numéricas a entero para evitar comas y .0
+            int_candidates = [c for c in df_show.columns
+                              if c.upper() in ('ENODEBID', 'ENODEB_ID', 'ENODEB',
+                                               'CODIGO_SERVICIO', 'COD_SERVICIO', 'CODIGO SERVICIO')]
+            for col in int_candidates:
+                df_show[col] = (pd.to_numeric(df_show[col], errors='coerce')
+                                .astype('Int64')
+                                .astype(str)
+                                .replace('<NA>', ''))
             st.dataframe(df_show, use_container_width=True, height=220)

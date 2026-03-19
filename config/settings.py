@@ -37,8 +37,9 @@ PROXY_CONFIG = {
 GSHEETS_URL = "https://docs.google.com/spreadsheets/d/1JWncerFGQL7BazFgtepWlYwVgrNJoF2zyLmUV5mlbII/edit?gid=0#gid=0"
 GSHEETS_WORKSHEET = "RANSHARING_CELLS"
 
-# --- Tabla principal en PostgreSQL ---
+# --- Tablas en PostgreSQL ---
 TABLE_ENTEL = "ransharing.counters_hourly_entel"
+TABLE_MASTER = "ransharing.cell_ransharing"
 
 # --- Paleta de colores WOM/Entel ---
 PALETTE = {

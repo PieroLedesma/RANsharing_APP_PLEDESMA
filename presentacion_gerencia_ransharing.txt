@@ -16,10 +16,8 @@ el análisis horario de los principales KPIs de red móvil (LTE).
 * Frontend (Interfaz): Desarrollado en Python utilizando Streamlit, ofreciendo 
   una interfaz web interactiva, rápida y diseñada con la identidad visual 
   institucional (tonos púrpura y magenta).
-* Base de Datos Analítica (KPIs): Conectado a PostgreSQL, donde se almacenan 
-  y consultan millones de registros de telemetría por hora.
-* Catálogo de Sitios (Maestra): Conectado directamente a ClickHouse, actuando 
-  como la única fuente de la verdad para el inventario de sitios y celdas activos.
+* Base de Datos (KPIs y Maestra): Conectado a PostgreSQL (3T), donde se centralizan 
+  millones de registros de telemetría por hora y el inventario oficial de celdas.
 
 
 3. ESTRUCTURA DE LA PLATAFORMA Y COMPONENTES
@@ -40,7 +38,7 @@ B. Panel de Control de Tiempo
 
 C. Tarjetas de Auditoría y Estado en Tiempo Real (Top Cards)
    - Q SITIOS RS: Total de sitios administrados bajo el contrato RANSharing 
-     según el inventario maestro de ClickHouse.
+     según el inventario oficial en PostgreSQL.
    - Q SITIOS SIN KPI: Identifica cuántos sitios del inventario no están 
      reportando datos de tráfico a la base de PostgreSQL (Sitios caídos o mudos).
    - Q SITIOS CON FALLAS: Cruza los datos de todos los sitios en las últimas 
@@ -103,8 +101,8 @@ de la industria de telecomunicaciones:
   garantiza que, a pesar de consultar tablas con millones de registros, la app 
   siga siendo veloz y responsiva.
 * Diagnóstico de Conectividad: La app auto-evalúa sus puentes de conexión hacia 
-  PostgreSQL y ClickHouse, informando en pantalla de inmediato cualquier corte 
-  de red con los servidores principales.
+  PostgreSQL (3T), informando en pantalla de inmediato cualquier corte 
+  de red con el servidor principal.
 
 ===============================================================================
 DOCUMENTO GENERADO AUTOMÁTICAMENTE PARA PRESENTACIÓN EJECUTIVA

@@ -27,7 +27,7 @@ if not check_password():
 
 from utils.db import execute_query, test_connection
 from utils.kpis import calculate_audit_kpis, get_site_status_for_map
-from utils.clickhouse import load_master_table
+from utils.master_table import load_master_table
 from queries.sql_queries import (
     get_accesibilidad_query, get_usuarios_query, get_prb_query,
     get_trafico_query, get_drop_query, get_downtime_query,
@@ -212,7 +212,7 @@ div[data-testid="stHorizontalBlock"] .stButton > button {
 # HELPERS
 # =============================================================================
 
-# mysql_db se carga via utils/clickhouse.py (ver load_master_table)
+# Tabla maestra se carga via utils/master_table.py (ver load_master_table) desde PostgreSQL ransharing.cell_ransharing
 
 
 @st.cache_data(ttl=600)
@@ -283,9 +283,8 @@ with st.sidebar:
     with st.spinner("Cargando tabla maestra..."):
         df_maestra = load_master_table()
 
-    ch_ok = not df_maestra.empty
-    db_ok     = test_connection()
-    render_connection_status(db_ok, ch_ok)
+    db_ok = test_connection()
+    render_connection_status(db_ok)
     st.markdown("<hr>", unsafe_allow_html=True)
 
     # ── FILTROS GLOBALES ───────────────────────────────────────────────────
@@ -562,7 +561,6 @@ with aud_col5:
     # Timestamp de actualización
     now_str = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     db_badge   = '<span style="background:#E8F5E9;color:#2E7D32;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;">● PostgreSQL (3T) OK</span>' if db_ok else '<span style="background:#FFEBEE;color:#C62828;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;">● PostgreSQL (3T) ERROR</span>'
-    gs_badge   = '<span style="background:#E8F5E9;color:#2E7D32;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;">● MySQL (Yumbel) OK</span>' if ch_ok else '<span style="background:#FFF8E1;color:#F57F17;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;">● MySQL (Yumbel) ERROR</span>'
     st.markdown(f"""
     <div style="background:white; border-radius:10px; padding:8px 14px;
                 box-shadow:0 2px 10px rgba(123,45,139,0.08);
@@ -572,7 +570,7 @@ with aud_col5:
             <div style="font-size:9px; color:#aaa;">🕐 {now_str}</div>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
-            {db_badge} {gs_badge}
+            {db_badge}
         </div>
         <!-- ZONA DE ETIQUETAS Y OBSERVACIONES ESTÁTICAS -->
         <div style="background:#FFF1F8; border:1px solid #F8BBD0; border-left:3px solid #E91E8C; padding:4px 8px; border-radius:4px; margin-top:2px;">
@@ -675,7 +673,7 @@ with map_col:
 
     # ── Tabla maestra resumida ────────────────────────────────────────────
     if not df_maestra.empty:
-        with st.expander("📋 Tabla Maestra (mysql_db)", expanded=False):
+        with st.expander("📋 Tabla Maestra (PostgreSQL)", expanded=False):
             cols_to_show = [c for c in df_maestra.columns if c.upper() in
                             ('SITE', 'SITIO', 'CELLNAME', 'CELL_NAME', 'OPERATOR', 'OPERADOR',
                              'ENODEBID', 'ENODEB_ID', 'ENODEB ID', 'ENODEB',

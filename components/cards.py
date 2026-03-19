@@ -131,17 +131,14 @@ def render_section_header(title: str, subtitle: str = ""):
     """, unsafe_allow_html=True)
 
 
-def render_connection_status(db_ok: bool, ch_ok: bool):
-    """Indicadores de estado de conexión en el sidebar."""
-    db_icon  = "🟢" if db_ok    else "🔴"
-    ch_icon  = "🟢" if ch_ok    else "🔴"
-    db_text  = "PostgreSQL (3T): OK" if db_ok    else "PostgreSQL (3T): ERROR"
-    ch_text  = "MySQL (Yumbel): OK" if ch_ok    else "MySQL (Yumbel): ERROR"
+def render_connection_status(db_ok: bool):
+    """Indicador de estado de conexión PostgreSQL en el sidebar."""
+    db_icon = "🟢" if db_ok else "🔴"
+    db_text = "PostgreSQL (3T): OK" if db_ok else "PostgreSQL (3T): ERROR"
 
     st.markdown(f"""
     <div style="background:rgba(255,255,255,0.07); border-radius:8px;
                 padding:10px 12px; margin:6px 0; font-size:11px; color:rgba(255,255,255,0.85);">
-        <div style="margin-bottom:4px;">{db_icon} {db_text}</div>
-        <div>{ch_icon} {ch_text}</div>
+        <div>{db_icon} {db_text}</div>
     </div>
     """, unsafe_allow_html=True)

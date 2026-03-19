@@ -8,9 +8,9 @@ cd c:\Users\pledesma\Desktop\Proyecto_WOM\APP_RANSHARING
 pip install -r requirements.txt
 ```
 
-### 2. Configurar Google Sheets
-Edita el archivo `.streamlit/secrets.toml` y agrega las credenciales de tu
-**Service Account** de Google Cloud. Instrucciones completas en el archivo.
+### 2. Configurar PostgreSQL
+Edita el archivo `.streamlit/secrets.toml` y agrega las credenciales del servidor
+de base de datos PostgreSQL (3T).
 
 ### 3. Ejecutar la app
 ```powershell
@@ -33,8 +33,9 @@ APP_RANSHARING/
 ├── queries/
 │   └── sql_queries.py        ← Queries SQL modularizadas por KPI
 ├── utils/
-│   ├── db.py                 ← Conexión PostgreSQL (psycopg2)
-│   └── kpis.py               ← Lógica de auditoría y cruce de datos
+│   ├── db.py                 ← Conexión PostgreSQL (pg8000 + SQLAlchemy)
+│   ├── kpis.py               ← Lógica de auditoría y cruce de datos
+│   └── master_table.py       ← Carga de inventario de celdas desde PostgreSQL
 └── components/
     ├── cards.py              ← Tarjetas HTML estilo WOM/Entel
     └── charts.py             ← Gráficos Plotly (8 módulos KPI + mapa)
@@ -68,7 +69,8 @@ Columnas clave asumidas:
 - `eutrancell` → nombre de celda
 - `e_rab_setup_sr`, `cell_availability`, etc.
 
-### Google Sheet esperada (RANSHARING_CELLS)
+### Tabla Maestra esperada (RANSHARING_CELLS)
+Se extrae de `ransharing.cell_ransharing` en PostgreSQL.
 Columnas mínimas: `SITE`, `CELLNAME`, `OPERATOR`, `LAT`, `LON`
 
 ---
